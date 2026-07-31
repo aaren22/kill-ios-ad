@@ -5,11 +5,11 @@
 #!date=2026-07-31
 
 [Script]
-# ---- 阶段1：请求阶段预拦截（已知广告 Hash 0毫秒秒杀，不卡顿网速） ----
+# ---- 阶段1：请求阶段预拦截（已知广告 Hash 0毫秒秒杀） ----
 http-request ^https?:\/\/image\d\.elife\.icbc\.com\.cn\/filepath\/ script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/ICBCELife_splash_preblock.js, timeout=5, tag=工银E生活-预拦截
 
-# ---- 阶段2：响应阶段智能学习（遇到新广告自动识别并记住 Hash） ----
-http-response ^https?:\/\/image\d\.elife\.icbc\.com\.cn\/filepath\/ script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/ICBCELife_splash_detect.js, requires-body=true, timeout=10, tag=工银E生活-尺寸识别
+# ---- 阶段2：响应阶段智能学习（仅对 jpg 大图识别，不卡顿 png 图标） ----
+http-response ^https?:\/\/image\d\.elife\.icbc\.com\.cn\/filepath\/.*\.jpg$ script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/ICBCELife_splash_detect.js, requires-body=true, timeout=10, tag=工银E生活-尺寸识别
 
 
 [MITM]
