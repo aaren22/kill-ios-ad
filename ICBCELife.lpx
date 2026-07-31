@@ -4,6 +4,12 @@
 #!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/github_00.png
 #!date=2026-07-31
 
+[Rule]
+# 拦截 DoH 加密 DNS 请求，防止 APP 绕过 Loon
+DOMAIN, doh.pub, REJECT
+DOMAIN, dns.alidns.com, REJECT
+
+
 [Script]
 # ---- 阶段1：请求阶段预拦截（已知广告 Hash 0毫秒秒杀） ----
 http-request ^https?:\/\/image\d\.elife\.icbc\.com\.cn\/filepath\/ script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/ICBCELife_splash_preblock.js, timeout=5, tag=工银E生活-预拦截

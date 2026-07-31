@@ -4,8 +4,7 @@
  * 首次遇到新的素材图时，解析图片尺寸:
  * - 宽≥1000 且 竖屏(高 > 宽 × 1.5) = 开屏广告
  * - 自动将其 Hash 写入 $persistentStore ("icbc_splash_hashes")
- * - 返回 404 触发跳过
- * - 下次打开 APP 时，该广告就会在请求阶段直接被秒杀拦截！
+ * - 返回 1x1 透明 GIF (HTTP 200) 促使 APP 快速关闭开屏
  */
 
 const url = $request.url;
@@ -17,6 +16,8 @@ if (!body) {
 
 const hashMatch = url.match(/\/([a-f0-9]{32})\.\w+$/i);
 const fileHash = hashMatch ? hashMatch[1] : "";
+
+const transparentGifBase64 = "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 function getBytes(data) {
     if (!data) return null;
@@ -100,9 +101,12 @@ if (w >= 1000 && h > w * 1.5) {
 
     $done({
         response: {
-            status: 404,
-            headers: { "Content-Type": "text/plain" },
-            body: "Not Found"
+            status: 200,
+            headers: { 
+                "Content-Type": "image/gif",
+                "Cache-Control": "no-cache"
+            },
+            body: transparentGifBase64
         }
     });
 } else {
