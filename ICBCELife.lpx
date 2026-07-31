@@ -4,9 +4,12 @@
 #!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/github_00.png
 #!date=2026-07-31
 
-[Rewrite]
-# 拦截开屏广告素材（请求阶段直接 REJECT，0 延迟秒杀，不卡顿正常图片加载）
-^https?:\/\/image\d\.elife\.icbc\.com\.cn\/filepath\/.*b8687dc04fdc435695e7f768a2dd79f8 reject
+[Script]
+# ---- 阶段1：请求阶段预拦截（已知广告 Hash 0毫秒秒杀，不卡顿网速） ----
+http-request ^https?:\/\/image\d\.elife\.icbc\.com\.cn\/filepath\/ script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/ICBCELife_splash_preblock.js, timeout=5, tag=工银E生活-预拦截
+
+# ---- 阶段2：响应阶段智能学习（遇到新广告自动识别并记住 Hash） ----
+http-response ^https?:\/\/image\d\.elife\.icbc\.com\.cn\/filepath\/ script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/ICBCELife_splash_detect.js, requires-body=true, timeout=10, tag=工银E生活-尺寸识别
 
 
 [MITM]

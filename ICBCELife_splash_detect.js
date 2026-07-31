@@ -1,10 +1,11 @@
 /*
- * 工银E生活开屏广告拦截脚本
+ * 工银E生活 - 开屏广告响应阶段尺寸识别与自动学习
  *
- * 拦截 image*.elife.icbc.com.cn 的图片响应
- * 解析图片二进制数据获取尺寸，当检测到超大竖屏图片 (宽≥1000 且 高>宽×1.5) 时返回404错误
- *
- * 兼容 Loon / Quantumult X 的各种 body 类型 (Base64, Uint8Array, ArrayBuffer, BinaryString)
+ * 首次遇到新的素材图时，解析图片尺寸:
+ * - 宽≥1000 且 竖屏(高 > 宽 × 1.5) = 开屏广告
+ * - 自动将其 Hash 写入 $persistentStore ("icbc_splash_hashes")
+ * - 返回 404 触发跳过
+ * - 下次打开 APP 时，该广告就会在请求阶段直接被秒杀拦截！
  */
 
 const url = $request.url;
@@ -13,6 +14,9 @@ const body = $response.body;
 if (!body) {
     $done({});
 }
+
+const hashMatch = url.match(/\/([a-f0-9]{32})\.\w+$/i);
+const fileHash = hashMatch ? hashMatch[1] : "";
 
 function getBytes(data) {
     if (!data) return null;
@@ -78,7 +82,22 @@ else if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46) {
 
 // 判定开屏广告：宽≥1000 且 竖屏(高 > 宽 × 1.5)
 if (w >= 1000 && h > w * 1.5) {
-    console.log("[工银E生活] 成功拦截开屏广告图片: " + w + "x" + h + " " + url);
+    console.log("[工银E生活] 识别到新开屏广告: " + w + "x" + h + " " + url);
+    
+    // 将 Hash 保存到持久化存储
+    if (fileHash) {
+        const saved = $persistentStore.read("icbc_splash_hashes");
+        let blockedHashes = saved ? JSON.parse(saved) : ["b8687dc04fdc435695e7f768a2dd79f8"];
+        if (!blockedHashes.includes(fileHash)) {
+            blockedHashes.push(fileHash);
+            if (blockedHashes.length > 20) {
+                blockedHashes = blockedHashes.slice(-20);
+            }
+            $persistentStore.write(JSON.stringify(blockedHashes), "icbc_splash_hashes");
+            console.log("[工银E生活] 已自动学习广告 Hash: " + fileHash);
+        }
+    }
+
     $done({
         response: {
             status: 404,
