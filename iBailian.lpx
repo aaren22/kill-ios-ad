@@ -1,0 +1,36 @@
+#!name=i百联去广告
+#!desc=去除i百联APP开屏广告及应用内广告
+#!author=Antigravity
+#!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/gif/naisi-01.gif
+#!date=2026-07-31
+#############################################
+# 工作原理：
+#
+# 拦截 mobile.bl.com/app/site/queryCutAdDeployv2.htm 接口
+# 该接口返回各广告位配置（含开屏广告 resourceId=259）
+# 脚本将返回数据中所有 advList 清空为 []
+# APP收到空广告列表后，自动跳过开屏，不显示任何广告
+#############################################
+
+[Rule]
+# ---- 通用第三方广告SDK域名拦截 ----
+DOMAIN-SUFFIX, pangolin-sdk-toutiao.com, REJECT
+DOMAIN-SUFFIX, pangolin-sdk-toutiao-b.com, REJECT
+DOMAIN-SUFFIX, pglstatp-toutiao.com, REJECT
+DOMAIN-SUFFIX, gdt.qq.com, REJECT
+DOMAIN-SUFFIX, ugdtimg.com, REJECT
+DOMAIN-SUFFIX, mobads.baidu.com, REJECT
+DOMAIN-SUFFIX, mobads-logs.baidu.com, REJECT
+DOMAIN-SUFFIX, open.e.kuaishou.com, REJECT
+DOMAIN-SUFFIX, sdk.e.qq.com, REJECT
+# 数据埋点/统计
+DOMAIN, sensorsdata.bl.com, REJECT
+
+
+[Script]
+# ---- 拦截广告配置接口，清空广告列表 ----
+http-response ^https?:\/\/mobile\.bl\.com\/app\/site\/queryCutAdDeployv2\.htm script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/iBailian_ad_remove.js, requires-body=true, timeout=10, tag=i百联去广告
+
+
+[MITM]
+hostname = mobile.bl.com

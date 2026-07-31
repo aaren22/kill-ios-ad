@@ -1,0 +1,10 @@
+# 抓包文件（体积大，不上传）
+*.har
+
+# 从HAR中提取的测试图片
+splash_*.jpg
+splash_*.png
+splash_*.gif
+normal_*.jpg
+normal_*.png
+normal_*.gif
