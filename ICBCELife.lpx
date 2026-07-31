@@ -9,4 +9,4 @@ http-response ^https?:\/\/image\d\.elife\.icbc\.com\.cn\/filepath\/ script-path=
 
 
 [MITM]
-hostname = image*.elife.icbc.com.cn
+hostname = image1.elife.icbc.com.cn, image2.elife.icbc.com.cn, image3.elife.icbc.com.cn, image4.elife.icbc.com.cn
