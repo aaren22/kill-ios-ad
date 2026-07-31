@@ -1,12 +1,11 @@
 /*
- * i百联开屏广告及应用内广告拦截脚本
+ * i百联开屏广告拦截脚本
  *
  * 拦截接口: mobile.bl.com/app/site/queryCutAdDeployv2.htm
  *
- * 核心逻辑:
- * 当请求开屏广告位(resourceId=259)及其他广告位时，
- * 将返回数据中所有 advList 数组清空为 []。
- * APP收到空广告列表后，直接跳过开屏过程，快速进入应用。
+ * 逻辑:
+ * 精确只清空开屏广告位 (resourceId === "259") 的广告列表，
+ * 绝不影响 259003(美妆)、259005(到家) 等正常的首页频道金刚位图标。
  */
 
 let body = $response.body;
@@ -29,10 +28,13 @@ try {
 
         if (obj && obj.otherResource && Array.isArray(obj.otherResource)) {
             obj.otherResource.forEach(function(res) {
-                if (res.advList && res.advList.length > 0) {
-                    console.log("[i百联] 成功清空广告位 resourceId=" + res.resourceId + " (" + res.advList.length + " 条广告)");
-                    res.advList = [];
-                    modified = true;
+                // 仅拦截开屏广告位 resourceId === "259"
+                if (String(res.resourceId) === "259") {
+                    if (res.advList && res.advList.length > 0) {
+                        console.log("[i百联] 精确清空开屏广告 (resourceId=259, 数量=" + res.advList.length + ")");
+                        res.advList = [];
+                        modified = true;
+                    }
                 }
             });
         }
