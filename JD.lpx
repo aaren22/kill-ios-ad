@@ -1,10 +1,10 @@
 #!name=京东
-#!desc=某些APP要清除缓存或者重新安装拦截广告才会生效！
-#!author=奶思
-#!homepage=https://github.com/fmz200/wool_scripts
+#!desc=移除京东开屏广告；更新后建议清理一次京东缓存
+#!author=奶思, aaren22
+#!homepage=https://github.com/aaren22/kill-ios-ad
 #!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/JD.png
 #!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/JD.lpx
-#!date=20260731
+#!date=20260810
 #############################################
 
 [Argument]
@@ -22,22 +22,25 @@ DOMAIN-SUFFIX,kepler.jd.com, REJECT
 DOMAIN-SUFFIX,bdsp.x.jd.com, REJECT
 DOMAIN-SUFFIX,keplerapi.jd.com, REJECT
 DOMAIN-SUFFIX,mapi.m.jd.com, REJECT
-DOMAIN-SUFFIX, ad.3.cn, REJECT
-DOMAIN-SUFFIX, jd.c-ptsp.com.cn, REJECT
-# 屏蔽DNS, REJECT
-DOMAIN, dns.jd.com, REJECT
-IP-CIDR, 101.124.19.122/32, REJECT, no-resolve
+DOMAIN-SUFFIX,ad.3.cn, REJECT
+DOMAIN-SUFFIX,jd.c-ptsp.com.cn, REJECT
+# 屏蔽 DNS
+DOMAIN,dns.jd.com, REJECT
+IP-CIDR,101.124.19.122/32, REJECT, no-resolve
 IP-CIDR6,2402:db40:5100:1011::5/128, REJECT, no-resolve
 
-
 [Rewrite]
-# 禁京东直播小窗
+# 禁止京东直播小窗
 ^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=getWidgetV1052 reject
 
-
 [Script]
+# 京东 15.9.50 新增：关闭 JDAdsCore，并拦截已缓存配置触发的开屏素材
+http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?[^#]*\bfunctionId=basicConfig(?:&|$) script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/JD_splash_remove.js, requires-body=true, timeout=60, tag=京东-开屏配置, enable={jkds_enable}
+http-request ^https:\/\/(?:quic|m)\.360buyimg\.com\/mobilecms\/s1125x2436_jfs\/ script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/JD_splash_remove.js, timeout=10, tag=京东-开屏图片, enable={jkds_enable}
+http-request ^https:\/\/storage\.360buyimg\.com\/material-video\/video\/ script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/JD_splash_remove.js, timeout=10, tag=京东-开屏视频, enable={jkds_enable}
+
+# 保留原有页面广告处理
 http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(deliverLayer|getTabHomeInfo|myOrderInfo|orderTrackBusiness|personinfoBusiness|start|welcomeHome) script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/jingdong/jingdong.js, requires-body=true, timeout=60, tag=京东, enable={jkds_enable}
 
-
 [MITM]
-hostname = api.m.jd.com, dns.jd.com
+hostname = api.m.jd.com, dns.jd.com, quic.360buyimg.com, m.360buyimg.com, storage.360buyimg.com
