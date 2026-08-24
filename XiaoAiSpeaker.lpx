@@ -1,0 +1,22 @@
+#!name=小爱音箱
+#!desc=移除小爱音箱开屏广告；更新后请清理一次 App 缓存
+#!author=奶思, aaren22
+#!homepage=https://github.com/aaren22/kill-ios-ad
+#!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/gif/naisi-01.gif
+#!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/XiaoAiSpeaker.lpx
+#!date=20260824
+#############################################
+
+[Rule]
+DOMAIN, mistat.xiaomi.com, REJECT
+
+
+[Rewrite]
+# 新版 App 在接口失败时会回退到本地缓存广告，必须返回 HTTP 200 空字典
+^https?:\/\/(info\.mina\.xiaoaisound|marketing-aibox\.v\.mitvos)\.com\/advertise(?!\/banner) reject-dict
+^https?:\/\/(info\.mina\.xiaoaisound|marketing-aibox\.v\.mitvos)\.com\/payGuide\/userCenter reject
+^https?:\/\/(info\.mina\.xiaoaisound|marketing-aibox\.v\.mitvos)\.com\/popup reject-dict
+
+
+[MITM]
+hostname = info.mina.xiaoaisound.com, marketing-aibox.v.mitvos.com
