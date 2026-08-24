@@ -7,6 +7,7 @@ iOS 去广告 Loon 插件集合。
 | 插件 | 应用 | 一键订阅 |
 |------|------|---------|
 | [iBailian.lpx](iBailian.lpx) | i百联 | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/iBailian.lpx` |
+| [UnicomCloud.lpx](UnicomCloud.lpx) | 联通云盘 | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/UnicomCloud.lpx` |
 
 ---
 

@@ -1,0 +1,22 @@
+#!name=联通云盘去开屏广告
+#!desc=移除联通云盘开屏广告和启动首页 Flow 广告；首次使用建议清除一次 App 缓存
+#!author=aaren22
+#!homepage=https://github.com/aaren22/kill-ios-ad
+#!icon=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/icons/apps/UnicomCloud.png
+#!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/UnicomCloud.lpx
+#!date=20260824
+#############################################
+
+[Rule]
+# 拦截第三方统计与广告 SDK
+DOMAIN-SUFFIX, zztfly.com, REJECT
+DOMAIN, api.tusdk.com, REJECT
+
+[Rewrite]
+# 新版接口需要返回空 JSON 字典（{}），避免 App 解析空内容失败时回退到本地缓存广告
+^https?:\/\/s\.pan\.wo\.cn\/wohome\/open\/v1\/resource\/query\/open-screen\/app(?:\?.*)?$ reject-dict
+# 启动首页弹窗和 Flow 广告
+^https?:\/\/s\.pan\.wo\.cn\/api\/bff\/resource\/query\/popupAndFlow(?:\?.*)?$ reject-dict
+
+[MITM]
+hostname = s.pan.wo.cn
