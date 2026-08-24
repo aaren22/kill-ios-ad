@@ -12,11 +12,10 @@
 DOMAIN-SUFFIX, zztfly.com, REJECT
 DOMAIN, api.tusdk.com, REJECT
 
-[Rewrite]
-# 新版接口需要返回空 JSON 字典（{}），避免 App 解析空内容失败时回退到本地缓存广告
-^https?:\/\/s\.pan\.wo\.cn\/wohome\/open\/v1\/resource\/query\/open-screen\/app(?:\?.*)?$ reject-dict
-# 启动首页弹窗和 Flow 广告
-^https?:\/\/s\.pan\.wo\.cn\/api\/bff\/resource\/query\/popupAndFlow(?:\?.*)?$ reject-dict
+[Script]
+# 本地 Mock 结构化成功响应，避免 App 因数据格式错误触发本地缓存广告兜底展示
+http-request ^https?:\/\/s\.pan\.wo\.cn\/wohome\/open\/v1\/resource\/query\/open-screen\/app script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/UnicomCloud_splash_remove.js, timeout=10, tag=联通云盘-开屏广告
+http-request ^https?:\/\/s\.pan\.wo\.cn\/api\/bff\/resource\/query\/popupAndFlow script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/UnicomCloud_splash_remove.js, timeout=10, tag=联通云盘-首页弹窗Flow广告
 
 [MITM]
 hostname = s.pan.wo.cn

@@ -48,6 +48,25 @@ APP启动 → 请求广告配置 queryCutAdDeployv2.htm
 
 ---
 
+## 联通云盘去广告
+
+去除联通云盘 APP 开屏广告及启动首页弹窗/Flow 广告。
+
+### 工作原理
+
+1. 拦截 `s.pan.wo.cn/wohome/open/v1/resource/query/open-screen/app` 与 `s.pan.wo.cn/api/bff/resource/query/popupAndFlow` 请求。
+2. 返回标准的结构化成功响应 `{"meta":{"code":"200","message":"成功"},"result":null}`。
+3. APP 成功解析数据并确认广告内容为空后，直接跳过开屏广告进入主界面，避免因请求报错回退展示本地历史缓存广告。
+
+### 文件说明
+
+| 文件 | 作用 |
+|------|------|
+| `UnicomCloud.lpx` | Loon 插件配置（订阅此文件即可） |
+| `UnicomCloud_splash_remove.js` | 开屏与弹窗广告拦截脚本 |
+
+---
+
 ## 免责声明
 
 本项目仅供学习交流使用，请勿用于商业用途。
