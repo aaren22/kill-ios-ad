@@ -8,6 +8,7 @@ iOS 去广告 Loon 插件集合。
 |------|------|---------|
 | [iBailian.lpx](iBailian.lpx) | i百联 | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/iBailian.lpx` |
 | [UnicomCloud.lpx](UnicomCloud.lpx) | 联通云盘 | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/UnicomCloud.lpx` |
+| [Flacbox.lpx](Flacbox.lpx) | Flacbox | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/Flacbox.lpx` |
 
 ---
 
@@ -64,6 +65,23 @@ APP启动 → 请求广告配置 queryCutAdDeployv2.htm
 |------|------|
 | `UnicomCloud.lpx` | Loon 插件配置（订阅此文件即可） |
 | `UnicomCloud_splash_remove.js` | 开屏与弹窗广告拦截脚本 |
+
+---
+
+## Flacbox 去广告
+
+去除 Flacbox 启动时加载的 Evermusic 跨应用推广页。
+
+### 工作原理
+
+HAR 显示 Flacbox 请求 `www.everappz.com/banners/evermusic_free_ios/index.html`，服务端先返回 `308`，再加载推广 HTML、`config.json` 和 9 张截图。插件在请求阶段精确匹配该目录并返回 HTTP `204`，阻止重定向和后续素材请求。
+
+### 文件说明
+
+| 文件 | 作用 |
+|------|------|
+| `Flacbox.lpx` | Loon 插件配置（订阅此文件即可） |
+| `Flacbox_ad_remove.js` | 推广页请求拦截脚本 |
 
 ---
 
