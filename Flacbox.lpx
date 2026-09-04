@@ -1,5 +1,5 @@
 #!name=Flacbox去广告
-#!desc=移除 Flacbox 启动时的 Evermusic 跨应用推广页
+#!desc=移除 Flacbox 启动时的 Evermusic 跨应用推广页；如遇历史强缓存请卸载重装 App 或等待缓存过期
 #!author=aaren22
 #!homepage=https://github.com/aaren22/kill-ios-ad
 #!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/github_00.png

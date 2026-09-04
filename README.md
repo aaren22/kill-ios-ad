@@ -74,14 +74,24 @@ APP启动 → 请求广告配置 queryCutAdDeployv2.htm
 
 ### 工作原理
 
-HAR 显示 Flacbox 请求 `www.everappz.com/banners/evermusic_free_ios/index.html`，服务端先返回 `308`，再加载推广 HTML、`config.json` 和 9 张截图。插件在请求阶段精确匹配该目录并返回 HTTP `204`，阻止重定向和后续素材请求。
+HAR 抓包显示 Flacbox 启动时会通过内置 WKWebView 加载 `www.everappz.com/banners/evermusic_free_ios/` 推广页。该页面的右上角关闭按钮绑定的协议为 `action://close`，原生 App 通过 `WKNavigationDelegate` 监听此协议来关闭弹窗。
+
+1. **自动关闭**：插件拦截 HTML 页面请求并直接 Mock 返回极简页面 `<script>window.location.replace("action://close");</script>`，WKWebView 加载后毫秒级触发原生关闭回调，弹窗自动 Dismiss。
+2. **阻断素材**：对 `config.json` 返回空配置（或将关闭事件兜底映射到 action），对图片、字体等静态素材返回 204，防止流量浪费。
+3. **禁用缓存**：所有 Mock 响应均附带 `Cache-Control: no-store, no-cache, must-revalidate`，避免强缓存干扰。
+
+### 缓存说明
+
+iOS 的 WKWebView 拥有独立的沙盒磁盘缓存（杀后台不会清空）。若在未开启去广告前曾加载过该推广页，可能已被写入 308 重定向与图片强缓存：
+- 更新插件后请在 Loon 中更新插件缓存并重新打开 App。
+- 若仍显示历史缓存页面，可在 iOS `设置` -> `通用` -> `iPhone 存储空间` -> `Flacbox` 中点击 **`卸载 App`**（**保留音乐和文档数据**），然后原地重新安装即可彻底清除 WebKit 网页磁盘缓存。
 
 ### 文件说明
 
 | 文件 | 作用 |
 |------|------|
 | `Flacbox.lpx` | Loon 插件配置（订阅此文件即可） |
-| `Flacbox_ad_remove.js` | 推广页请求拦截脚本 |
+| `Flacbox_ad_remove.js` | 推广页请求拦截与自动关闭脚本 |
 
 ---
 
