@@ -1,22 +1,22 @@
 #!name=小爱音箱
-#!desc=移除小爱音箱开屏广告；更新后请清理一次 App 缓存
+#!desc=移除小爱音箱开屏广告与弹窗；首次使用建议清理一次 App 缓存
 #!author=奶思, aaren22
 #!homepage=https://github.com/aaren22/kill-ios-ad
 #!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/gif/naisi-01.gif
 #!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/XiaoAiSpeaker.lpx
-#!date=20260824
+#!date=20260907
 #############################################
 
 [Rule]
 DOMAIN, mistat.xiaomi.com, REJECT
 
-
 [Rewrite]
-# 新版 App 在接口失败时会回退到本地缓存广告，必须返回 HTTP 200 空字典
-^https?:\/\/(info\.mina\.xiaoaisound|marketing-aibox\.v\.mitvos)\.com\/advertise(?!\/banner) reject-dict
 ^https?:\/\/(info\.mina\.xiaoaisound|marketing-aibox\.v\.mitvos)\.com\/payGuide\/userCenter reject
-^https?:\/\/(info\.mina\.xiaoaisound|marketing-aibox\.v\.mitvos)\.com\/popup reject-dict
 
+[Script]
+# 本地 Mock 结构化成功响应，避免 App 因数据格式错误触发本地缓存广告兜底展示
+http-request ^https?:\/\/(info\.mina\.xiaoaisound|marketing-aibox\.v\.mitvos)\.com\/(advertise\/(?!banner)|popup\/) script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/XiaoAiSpeaker_ad_remove.js, timeout=10, tag=小爱音箱-去除开屏与弹窗广告
 
 [MITM]
 hostname = info.mina.xiaoaisound.com, marketing-aibox.v.mitvos.com
+

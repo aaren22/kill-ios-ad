@@ -9,6 +9,7 @@ iOS 去广告 Loon 插件集合。
 | [iBailian.lpx](iBailian.lpx) | i百联 | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/iBailian.lpx` |
 | [UnicomCloud.lpx](UnicomCloud.lpx) | 联通云盘 | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/UnicomCloud.lpx` |
 | [Flacbox.lpx](Flacbox.lpx) | Flacbox | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/Flacbox.lpx` |
+| [XiaoAiSpeaker.lpx](XiaoAiSpeaker.lpx) | 小爱音箱 | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/XiaoAiSpeaker.lpx` |
 
 ---
 
@@ -92,6 +93,27 @@ iOS 的 WKWebView 拥有独立的沙盒磁盘缓存（杀后台不会清空）�
 |------|------|
 | `Flacbox.lpx` | Loon 插件配置（订阅此文件即可） |
 | `Flacbox_ad_remove.js` | 推广页请求拦截与自动关闭脚本 |
+
+---
+
+## 小爱音箱去广告
+
+去除小爱音箱 APP 开屏广告及启动弹窗广告。
+
+### 工作原理
+
+小爱音箱 iOS 客户端对广告接口有严格的数据模型解析要求（Alamofire + `Decodable`），且内置了**本地广告历史缓存回退机制**。当开屏广告接口返回 `reject`、`0 字节` 或不完整的字典时，解析器异常会触发 `catch`，导致 App 自动读取沙盒中的历史缓存广告并在屏幕上渲染。
+
+1. **结构化 Mock**：拦截 `marketing-aibox.v.mitvos.com` / `info.mina.xiaoaisound.com` 的 `/advertise/v2/splash`、`/advertise/tab/alert` 以及 `/popup/home/v2` 请求。
+2. **合法空数据**：在请求阶段（`http-request`）直接短路并 Mock 返回业务合法的成功响应 `{"code":0,"message":"Success","data":{"totalMaxTimes":0,"items":[]}}`。
+3. **安全跳过**：App 正常反序列化并识别到广告项列表为空，直接跳过开屏，同时刷新本地缓存，彻底杜绝回退展示本地历史广告。
+
+### 文件说明
+
+| 文件 | 作用 |
+|------|------|
+| `XiaoAiSpeaker.lpx` | Loon 插件配置（订阅此文件即可） |
+| `XiaoAiSpeaker_ad_remove.js` | 开屏与弹窗广告结构化 Mock 拦截脚本 |
 
 ---
 
