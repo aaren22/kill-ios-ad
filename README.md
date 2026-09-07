@@ -71,13 +71,13 @@ APP启动 → 请求广告配置 queryCutAdDeployv2.htm
 
 ## Flacbox 去广告
 
-去除 Flacbox 启动时加载的 Evermusic 跨应用推广页。
+去除 Flacbox 启动时加载的 Evermusic 跨应用及全平台推广页（如 `evermusic_free_ios`、`evermusic_macos` 等）。
 
 ### 工作原理
 
-HAR 抓包显示 Flacbox 启动时会通过内置 WKWebView 加载 `www.everappz.com/banners/evermusic_free_ios/` 推广页。该页面的右上角关闭按钮绑定的协议为 `action://close`，原生 App 通过 `WKNavigationDelegate` 监听此协议来关闭弹窗。
+HAR 抓包显示 Flacbox 启动时会通过内置 WKWebView 随机加载 `www.everappz.com/banners/` 目录下的推广页（例如宣传 iOS 版的 `evermusic_free_ios` 或宣传 Mac 版的 `evermusic_macos`）。这些页面的右上角关闭按钮均绑定协议 `action://close`，原生 App 通过 `WKNavigationDelegate` 监听此协议来关闭弹窗。
 
-1. **自动关闭**：插件拦截 HTML 页面请求并直接 Mock 返回极简页面 `<script>window.location.replace("action://close");</script>`，WKWebView 加载后毫秒级触发原生关闭回调，弹窗自动 Dismiss。
+1. **自动关闭**：插件通配拦截 `/banners/` 下的所有 HTML 页面请求，并直接 Mock 返回极简页面 `<script>window.location.replace("action://close");</script>`，WKWebView 加载后毫秒级触发原生关闭回调，弹窗自动 Dismiss。
 2. **阻断素材**：对 `config.json` 返回空配置（或将关闭事件兜底映射到 action），对图片、字体等静态素材返回 204，防止流量浪费。
 3. **禁用缓存**：所有 Mock 响应均附带 `Cache-Control: no-store, no-cache, must-revalidate`，避免强缓存干扰。
 

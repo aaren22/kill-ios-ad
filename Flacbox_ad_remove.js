@@ -9,15 +9,14 @@
  */
 
 const requestUrl = String($request && $request.url || "");
-const bannerRegex = /^https?:\/\/www\.everappz\.com\/banners\/evermusic_free_ios(?:[\/?#]|$)/i;
+const bannerRegex = /^https?:\/\/(?:www\.)?everappz\.com\/banners\//i;
 
 if (!bannerRegex.test(requestUrl)) {
     $done({});
 } else {
     const isConfig = requestUrl.includes("config.json");
     const isPage = requestUrl.includes("index.html") || 
-                  requestUrl.endsWith("/evermusic_free_ios/") || 
-                  requestUrl.endsWith("/evermusic_free_ios") ||
+                  requestUrl.endsWith("/") || 
                   !/\.(png|jpg|jpeg|gif|ttf|otf|woff|woff2|css|js|json)($|\?)/i.test(requestUrl);
 
     if (isConfig) {
