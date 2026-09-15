@@ -10,6 +10,7 @@ iOS 去广告 Loon 插件集合。
 | [UnicomCloud.lpx](UnicomCloud.lpx) | 联通云盘 | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/UnicomCloud.lpx` |
 | [Flacbox.lpx](Flacbox.lpx) | Flacbox | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/Flacbox.lpx` |
 | [XiaoAiSpeaker.lpx](XiaoAiSpeaker.lpx) | 小爱音箱 | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/XiaoAiSpeaker.lpx` |
+| [EdifierConnect.lpx](EdifierConnect.lpx) | 漫步者 (Edifier Connect) | `https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/EdifierConnect.lpx` |
 
 ---
 
@@ -114,6 +115,37 @@ iOS 的 WKWebView 拥有独立的沙盒磁盘缓存（杀后台不会清空）�
 |------|------|
 | `XiaoAiSpeaker.lpx` | Loon 插件配置（订阅此文件即可） |
 | `XiaoAiSpeaker_ad_remove.js` | 开屏与弹窗广告结构化 Mock 拦截脚本 |
+
+---
+
+## 漫步者 (Edifier Connect) 去广告
+
+去除漫步者 Edifier Connect APP 开屏活动广告页、跑马灯推广及屏蔽数据统计埋点。
+
+### 工作原理
+
+漫步者 iOS 客户端在启动时通过接口请求活动与跑马灯广告，且内置了**本地历史持久化缓存机制**：
+1. **接口请求与缓存回退**：App 启动时请求 `admin-app.edifier.com/edifier_provider/public/getAppMarqueeForApp`。若请求携带的 `updatetime` 时间戳命中服务端缓存，服务端会返回 `{"code":1,"msg":"无更新"}`。客户端收到该状态后判定无需拉取新数据，直接读取本地 SQLite/UserDefaults 中持久化的历史广告（例如“金秋焕新”抽奖活动）并展示为持续数秒的“广告页”。若直接断开网络连接或抛出错误，客户端解析异常同样会回退展示历史缓存广告。
+2. **结构化 Mock 清空缓存**：该接口在正常数据下发时的真实模型为顶层 JSON 数组（`[{...}]`）。脚本在请求阶段（`http-request`）直接短路拦截，Mock 返回合法的空数组 `[]`（HTTP 200）。客户端正常完成反序列化并识别到广告项为空，自动刷新并清空本地历史广告缓存，彻底跳过活动广告页。
+3. **素材精准阻断**：广告图片素材存储于 `edifier-provider-oss.edifier.com/marquee_img/`。由于漫步者耳机系列外观图也存放于该 OSS 域名（`/series_img/`），插件采用精准路径 Rewrite 拦截 `/marquee_img/`，在阻断广告图片加载的同时确保耳机型号外观图不受任何影响。
+4. **屏蔽埋点上报**：通过规则 REJECT `app-statistics.edifier.com`（跑马灯统计）与 `analytics.edifier.com`（遥测埋点），阻止广告曝光及应用使用数据上传。
+
+### 使用方法
+
+1. 打开 Loon → 插件 → 添加插件
+2. 输入订阅 URL：
+   ```
+   https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/EdifierConnect.lpx
+   ```
+3. 确保 Loon 已开启 MITM，且 `admin-app.edifier.com, edifier-provider-oss.edifier.com` 在 hostname 列表中
+4. 首次使用建议清除一次 App 缓存（或上划强退 App 重新冷启动）
+
+### 文件说明
+
+| 文件 | 作用 |
+|------|------|
+| `EdifierConnect.lpx` | Loon 插件配置（订阅此文件即可） |
+| `EdifierConnect_ad_remove.js` | 跑马灯广告结构化 Mock 拦截脚本 |
 
 ---
 

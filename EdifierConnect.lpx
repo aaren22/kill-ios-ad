@@ -1,0 +1,24 @@
+#!name=Edifier Connect
+#!desc=移除漫步者 Edifier Connect 开屏活动与跑马灯广告，屏蔽统计埋点；首次使用建议清理一次 App 缓存
+#!author=aaren22
+#!homepage=https://github.com/aaren22/kill-ios-ad
+#!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Music.png
+#!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/EdifierConnect.lpx
+#!date=20260915
+#############################################
+
+[Rule]
+# 拦截跑马灯广告统计上报与埋点分析
+DOMAIN, app-statistics.edifier.com, REJECT
+DOMAIN, analytics.edifier.com, REJECT
+
+[Rewrite]
+# 兜底拦截 OSS 跑马灯广告图片素材（不影响耳机外观图 /series_img/）
+^https?:\/\/edifier-provider-oss\.edifier\.com\/marquee_img\/ reject
+
+[Script]
+# 本地 Mock 结构化空数组响应，覆盖清空本地广告缓存，跳过活动广告页
+http-request ^https?:\/\/admin-app\.edifier\.com\/edifier_provider\/public\/getAppMarqueeForApp script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/EdifierConnect_ad_remove.js, timeout=10, tag=漫步者-跑马灯广告拦截
+
+[MITM]
+hostname = admin-app.edifier.com, edifier-provider-oss.edifier.com
