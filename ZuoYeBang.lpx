@@ -1,0 +1,28 @@
+#!name=作业帮去广告
+#!desc=移除作业帮广告位与弹窗，屏蔽羽克广告平台上报；基于 HAR 抓包分析（syh.yukeweb.com / plutov2/app/popstatus）
+#!author=aaren22
+#!homepage=https://github.com/aaren22/kill-ios-ad
+#!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/github_00.png
+#!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/ZuoYeBang.lpx
+#!date=20261010
+#############################################
+
+[Rule]
+# 行为埋点上报（纯上报，无业务功能）
+DOMAIN-SUFFIX,nlogtj.yukeweb.com, REJECT
+DOMAIN-SUFFIX,nlogtj.zuoyebang.cc, REJECT
+# 广告归因
+DOMAIN-SUFFIX,gtactivity.zuoyebang.com, REJECT
+
+[Rewrite]
+# 羽克广告平台：曝光监测 / 创意展示上报 / SDK 黑名单（纯上报，直接拒绝）
+^https?:\/\/syh\.yukeweb\.com\/com\/(imp\/monitor|adx\/generalreport|adx\/sdkbl) reject
+
+[Script]
+# 广告下发接口：清空 data.list，模拟服务端"无广告"响应（ishavead=0）
+http-response ^https?:\/\/syh\.yukeweb\.com\/com\/adx\/impress script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/ZuoYeBang_ad_remove.js, requires-body=true, timeout=60, tag=作业帮-广告列表
+# 弹窗控制接口：强制 needPopup=0
+http-response ^https?:\/\/pluto\.zuoyebang\.com\/plutov2\/app\/popstatus script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/ZuoYeBang_ad_remove.js, requires-body=true, timeout=60, tag=作业帮-弹窗控制
+
+[MITM]
+hostname = syh.yukeweb.com, pluto.zuoyebang.com
