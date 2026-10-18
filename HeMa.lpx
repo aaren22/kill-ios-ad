@@ -2,7 +2,7 @@
 #!desc=盒马 App 去广告：开屏/营销接口拦截 + 广告素材拦截 + 首页信息流脚本过滤；基于 HAR 抓包分析，融合 Kelee、奶思(fmz200)、zirawell 的规则
 #!author=aaren22
 #!homepage=https://github.com/aaren22/kill-ios-ad
-#!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/github_00.png
+#!icon=https://raw.githubusercontent.com/zirawell/R-Store/main/Res/Icon/App/freshippo.png
 #!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HeMa.lpx
 #!date=20261018
 #############################################
