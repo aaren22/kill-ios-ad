@@ -1,5 +1,5 @@
 #!name=盒马去广告
-#!desc=盒马 App 去广告：开屏配置接口返回空数据 + 营销/推荐类广告接口拦截 + 广告素材下载拦截；基于 HAR 抓包分析，融合 Kelee 与奶思(fmz200) 的规则
+#!desc=盒马 App 去广告：开屏/营销接口拦截 + 广告素材拦截 + 首页信息流脚本过滤；基于 HAR 抓包分析，融合 Kelee、奶思(fmz200)、zirawell 的规则
 #!author=aaren22
 #!homepage=https://github.com/aaren22/kill-ios-ad
 #!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/github_00.png
@@ -7,7 +7,7 @@
 #!date=20261018
 #############################################
 
-# 三层防御：
+# 四层防御：
 # 1) 配置层：开屏页的渲染查询接口直接返回空数据，App 拿到"无内容"就不展示开屏。
 #    接口 mtop.wdk.render.querysinglepage（单页渲染查询），规则来源：Kelee 的
 #    MrHema_remove_ads 插件（其复写列表第一条 reject_dict），已与抓包中的
@@ -23,14 +23,15 @@
 #    证据：抓包中盒马 App 本体（UA=Hema4iPhone）启动时下载了
 #    wdk-unity.alibabausercontent.com/frontend/common/20261011/<hash>.mp4（约 1.28MB）。
 #
-# 刻意没做的：奶思版还带了一个外部脚本 freshippo.js（zirawell/R-Store 托管），
-# 对首页/我的页/信息流做 JSON 白名单过滤。没引入的原因：① 外部脚本 URL 挂掉
-# 整个插件就失效；② 白名单写死的 sceneTemplateId 随 App 更新会漂移，可能误伤
-# 正常栏目。如果装完这一版信息流还有广告漏网，再考虑把脚本逻辑本地化引入。
+# 4) 脚本层：首页/我的页/信息流三个接口的返回 JSON 做白名单过滤，
+#    只保留正常栏目，砍掉广告/营销坑位。逻辑来源：zirawell/R-Store 的
+#    freshippo.js，已本地化收录为本仓库的 HeMa_ad_remove.js（原脚本托管在
+#    第三方仓库，URL 失效则插件失效，本地化后由本仓库版本控制）。
 #
 # 注意：已缓存的广告素材可能还会播一两次，等缓存轮换后失效；
 # /frontend/common/ 也可能承载其他运营素材，拦截后个别活动图可能不显示，
-# 不影响购物主功能。若盒马出现异常，按顺序停用 2) → 1) 的规则再排查。
+# 不影响购物主功能。脚本层的白名单是硬编码栏目 ID，盒马 App 更新后若首页/
+# 我的页出现大片空白，先停用 [Script] 段再排查；其他异常按顺序停用 2) → 1) 的规则。
 
 [Rewrite]
 # 配置层：开屏渲染查询接口返回空数据
@@ -46,3 +47,7 @@
 
 [MITM]
 hostname = acs-m.freshippo.com, acs.m.taobao.com, wdk-unity.alibabausercontent.com
+
+[Script]
+# 脚本层：首页/我的页/信息流 JSON 白名单过滤（逻辑来源 zirawell/R-Store，已本地化）
+http-response ^https?:\/\/acs(\.|-)m\.(taobao|freshippo)\.com\/gw\/mtop\.wdk\.render\.query(indexpage|mypage|tabfeedstream) script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HeMa_ad_remove.js, requires-body=true, timeout=60, tag=盒马首页信息流过滤
