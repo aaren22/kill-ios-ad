@@ -1,31 +1,48 @@
 #!name=盒马去广告
-#!desc=双层拦截盒马开屏广告：配置接口返回空数据 + 广告素材下载拦截；基于 HAR 抓包分析与 Kelee 插件规则比对
+#!desc=盒马 App 去广告：开屏配置接口返回空数据 + 营销/推荐类广告接口拦截 + 广告素材下载拦截；基于 HAR 抓包分析，融合 Kelee 与奶思(fmz200) 的规则
 #!author=aaren22
 #!homepage=https://github.com/aaren22/kill-ios-ad
 #!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/github_00.png
 #!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HeMa.lpx
-#!date=20261012
+#!date=20261018
 #############################################
 
-# 双层防御：
+# 三层防御：
 # 1) 配置层：开屏页的渲染查询接口直接返回空数据，App 拿到"无内容"就不展示开屏。
 #    接口 mtop.wdk.render.querysinglepage（单页渲染查询），规则来源：Kelee 的
 #    MrHema_remove_ads 插件（其复写列表第一条 reject_dict），已与抓包中的
-#    MTOP 网关 acs-m.freshippo.com 对应上。
-# 2) 素材层：盒马开屏广告是预下载模式——App 提前把广告视频/图片拉到本地，
+#    MTOP 网关对应上。这里用 reject-dict（返回 {}）而不用 reject-200，
+#    避免 App 解析空响应体时 JSON 解析异常。
+# 2) 接口层：营销/推荐类广告接口直接拦截，规则来源：奶思(fmz200/wool_scripts
+#    的 Hema.lpx，经多版本验证)。覆盖 tabbar、单场景、信息流推荐、CRM 营销推荐、
+#    购后活动推荐。
+#    注意：网关同时覆盖 acs-m.freshippo.com 与 acs.m.taobao.com（盒马 App
+#    两个网关都会走，奶思的规则写法）。
+# 3) 素材层：盒马开屏广告是预下载模式——App 提前把广告视频/图片拉到本地，
 #    下次冷启动播缓存。拦截素材下载路径作为兜底，配置层漏过的也播不出来。
 #    证据：抓包中盒马 App 本体（UA=Hema4iPhone）启动时下载了
 #    wdk-unity.alibabausercontent.com/frontend/common/20261011/<hash>.mp4（约 1.28MB）。
 #
+# 刻意没做的：奶思版还带了一个外部脚本 freshippo.js（zirawell/R-Store 托管），
+# 对首页/我的页/信息流做 JSON 白名单过滤。没引入的原因：① 外部脚本 URL 挂掉
+# 整个插件就失效；② 白名单写死的 sceneTemplateId 随 App 更新会漂移，可能误伤
+# 正常栏目。如果装完这一版信息流还有广告漏网，再考虑把脚本逻辑本地化引入。
+#
 # 注意：已缓存的广告素材可能还会播一两次，等缓存轮换后失效；
 # /frontend/common/ 也可能承载其他运营素材，拦截后个别活动图可能不显示，
-# 不影响购物主功能。若盒马出现异常，先停用配置层那条规则再排查。
+# 不影响购物主功能。若盒马出现异常，按顺序停用 2) → 1) 的规则再排查。
 
 [Rewrite]
 # 配置层：开屏渲染查询接口返回空数据
-^https?:\/\/acs-m\.freshippo\.com\/gw\/mtop\.wdk\.render\.querysinglepage\/ reject-dict
+^https?:\/\/acs(\.|-)m\.(taobao|freshippo)\.com\/gw\/mtop\.wdk\.render\.querysinglepage\/ reject-dict
+# 接口层：营销/推荐类广告接口（来源：奶思 Hema.lpx）
+^https?:\/\/acs(\.|-)m\.(taobao|freshippo)\.com\/gw\/mtop\.wdk\.hippotown\.tabbar\.info reject
+^https?:\/\/acs(\.|-)m\.(taobao|freshippo)\.com\/gw\/mtop\.wdk\.sg\.querysinglescene reject-dict
+^https?:\/\/acs(\.|-)m\.(taobao|freshippo)\.com\/gw\/mtop\.wdk\.fc\.recommend\.feedscommondservice reject-dict
+^https?:\/\/acs(\.|-)m\.(taobao|freshippo)\.com\/gw\/mtop\.wdk\.crm\.platform\.ma\.recommend reject-dict
+^https?:\/\/acs(\.|-)m\.(taobao|freshippo)\.com\/gw\/mtop\.wdk\.mimir\.recommend\.after\.purchase\.activity reject-dict
 # 素材层：开屏广告素材下载（视频/图片）
 ^https?:\/\/wdk-unity\.alibabausercontent\.com\/frontend\/common\/ reject
 
 [MITM]
-hostname = acs-m.freshippo.com, wdk-unity.alibabausercontent.com
+hostname = acs-m.freshippo.com, acs.m.taobao.com, wdk-unity.alibabausercontent.com
