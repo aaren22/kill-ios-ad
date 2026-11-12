@@ -1,11 +1,11 @@
-#!name=华夏基金去广告 v1.2
-#!desc=移除华夏基金开屏广告与弹窗，屏蔽腾讯广告配置与埋点上报；基于 HAR 抓包分析（splashAfter4_5_0 / getPopupInfoNew / rdelivery）。v1.2：开屏接口直接拒绝，新增版本号（v1.0 脚本清空图片、v1.1 改直接拒绝）
+#!name=华夏基金去广告 v1.3
+#!desc=移除华夏基金开屏广告与弹窗，屏蔽腾讯广告配置与埋点上报；基于 HAR 抓包分析（splashAfter4_5_0 / getPopupInfoNew / rdelivery）。v1.3：开屏改回脚本，返回“无投放”业务响应——v1.2 实测直接拒绝请求无效（App 遇 404 会走本地兜底仍显示开屏）
 #!author=aaren22
 #!homepage=https://github.com/aaren22/kill-ios-ad
 #!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/github_00.png
 #!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin.lpx
 #!date=20261112
-#!version=1.2
+#!version=1.3
 #############################################
 
 [Rule]
@@ -18,12 +18,10 @@ DOMAIN-SUFFIX,mips.chinaamc.com, REJECT
 # 未知第三方探针（抓包中该请求已失败，非业务接口）
 DOMAIN,dash.xn--cp3a08l.com, REJECT
 
-[Rewrite]
-# 开屏下发接口：直接拒绝请求，App 拿不到开屏配置则跳过开屏直进首页
-# （实测：仅清空 imageList 时开屏变空白但跳过按钮仍在，需直接断流）
-^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/splashAfter4_5_0\.json reject
-
 [Script]
+# 开屏下发接口：返回业务层"无投放"响应（code 非 0000），让 App 走"无开屏"分支
+# （v1.2 实测：直接 reject 返回 404 时 App 会走本地兜底，空白开屏+跳过按钮仍在）
+http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/splashAfter4_5_0\.json script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js, requires-body=true, timeout=60, tag=华夏基金-开屏广告
 # 弹窗控制接口：强制 popupBodyList 为空数组
 http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/getPopupInfoNew\.json script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js, requires-body=true, timeout=60, tag=华夏基金-弹窗
 
