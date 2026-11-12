@@ -1,0 +1,27 @@
+#!name=华夏基金去广告
+#!desc=移除华夏基金开屏广告与弹窗，屏蔽腾讯广告配置与埋点上报；基于 HAR 抓包分析（splashAfter4_5_0 / getPopupInfoNew / rdelivery）
+#!author=aaren22
+#!homepage=https://github.com/aaren22/kill-ios-ad
+#!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/github_00.png
+#!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin.lpx
+#!date=20261112
+#############################################
+
+[Rule]
+# 腾讯广告投放配置（加密下发，纯广告，直接拒绝）
+DOMAIN,camc.rdelivery.qq.com, REJECT
+# 性能监控上报（纯上报，无业务功能）
+DOMAIN-SUFFIX,apm.chinaamc.com, REJECT
+# 神策埋点上报（纯上报，无业务功能）
+DOMAIN-SUFFIX,mips.chinaamc.com, REJECT
+# 未知第三方探针（抓包中该请求已失败，非业务接口）
+DOMAIN,dash.xn--cp3a08l.com, REJECT
+
+[Script]
+# 开屏下发接口：清空 data.imageList，模拟服务端"无开屏广告"响应
+http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/splashAfter4_5_0\.json script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js, requires-body=true, timeout=60, tag=华夏基金-开屏广告
+# 弹窗控制接口：强制 popupBodyList 为空数组
+http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/getPopupInfoNew\.json script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js, requires-body=true, timeout=60, tag=华夏基金-弹窗
+
+[MITM]
+hostname = a.chinaamc.com
