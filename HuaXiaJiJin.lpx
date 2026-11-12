@@ -17,9 +17,12 @@ DOMAIN-SUFFIX,mips.chinaamc.com, REJECT
 # 未知第三方探针（抓包中该请求已失败，非业务接口）
 DOMAIN,dash.xn--cp3a08l.com, REJECT
 
+[Rewrite]
+# 开屏下发接口：直接拒绝请求，App 拿不到开屏配置则跳过开屏直进首页
+# （实测：仅清空 imageList 时开屏变空白但跳过按钮仍在，需直接断流）
+^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/splashAfter4_5_0\.json reject
+
 [Script]
-# 开屏下发接口：清空 data.imageList，模拟服务端"无开屏广告"响应
-http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/splashAfter4_5_0\.json script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js, requires-body=true, timeout=60, tag=华夏基金-开屏广告
 # 弹窗控制接口：强制 popupBodyList 为空数组
 http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/getPopupInfoNew\.json script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js, requires-body=true, timeout=60, tag=华夏基金-弹窗
 
