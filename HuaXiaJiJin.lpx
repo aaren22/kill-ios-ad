@@ -1,10 +1,11 @@
-#!name=华夏基金去广告
-#!desc=移除华夏基金开屏广告与弹窗，屏蔽腾讯广告配置与埋点上报；基于 HAR 抓包分析（splashAfter4_5_0 / getPopupInfoNew / rdelivery）
+#!name=华夏基金去广告 v1.2
+#!desc=移除华夏基金开屏广告与弹窗，屏蔽腾讯广告配置与埋点上报；基于 HAR 抓包分析（splashAfter4_5_0 / getPopupInfoNew / rdelivery）。v1.2：开屏接口直接拒绝，新增版本号（v1.0 脚本清空图片、v1.1 改直接拒绝）
 #!author=aaren22
 #!homepage=https://github.com/aaren22/kill-ios-ad
 #!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/github_00.png
 #!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin.lpx
 #!date=20261112
+#!version=1.2
 #############################################
 
 [Rule]
