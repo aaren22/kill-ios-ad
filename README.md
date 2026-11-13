@@ -11,6 +11,7 @@ iOS 去广告 Loon 插件集合。
 | [Flacbox.lpx](Flacbox.lpx) | Flacbox | [订阅](https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/Flacbox.lpx) |
 | [XiaoAiSpeaker.lpx](XiaoAiSpeaker.lpx) | 小爱音箱 | [订阅](https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/XiaoAiSpeaker.lpx) |
 | [EdifierConnect.lpx](EdifierConnect.lpx) | 漫步者 Edifier Connect | [订阅](https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/EdifierConnect.lpx) |
+| [HuaXiaJiJin.lpx](HuaXiaJiJin.lpx) | 华夏基金 | [订阅](https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin.lpx) |
 
 ## 功能
 
@@ -19,6 +20,7 @@ iOS 去广告 Loon 插件集合。
 - **Flacbox**：关闭 Evermusic 跨应用及平台推广页，并阻断相关素材加载。
 - **小爱音箱**：移除开屏及启动弹窗广告，并处理本地广告缓存回退。
 - **漫步者 Edifier Connect**：移除开屏活动、跑马灯广告，并屏蔽相关统计埋点。
+- **华夏基金**：移除开屏广告与弹窗，屏蔽腾讯广告配置与监控埋点。
 
 ## 使用
 

@@ -1,15 +1,15 @@
 /*
- * 华夏基金去广告 v1.3
+ * 华夏基金去广告 v1.4
  *
  * 原理（基于 HAR 抓包分析，App 华夏基金 iOS 7.0.2）：
  * 1. 开屏广告由 GET a.chinaamc.com/mtrading-fm/query/splashAfter4_5_0.json 下发。
- *    v1.0 只清空 data.imageList，实测开屏变空白但跳过按钮仍在——App 只要
- *    收到 code 0000 就会渲染开屏容器。v1.1/v1.2 改为直接 REJECT 该请求，
- *    v1.2 实测（用户确认已装 v1.2 并重新抓包）：请求被挡成 404（2ms 空响应），
- *    rdelivery/APM/神策也全部无请求，开屏图片也不再下载，但空白开屏+跳过
- *    按钮仍然出现——说明 App 在请求失败时走了本地兜底（缓存或内置开屏）。
- *    v1.3 改回脚本：直接返回业务层"无投放"响应（code 9999，data 为 null），
- *    让 App 走正常的"无开屏"分支，不经过失败兜底。
+ *    - v1.0 仅清空 data.imageList：App 收到 code 0000 且 data != null，判定有活动，
+ *      创建开屏容器和跳过按钮并启动 5s 倒计时，但无图片渲染，呈现空白开屏+跳过按钮。
+ *    - v1.1/v1.2 直接 REJECT：Loon 返回 404 Not Found（2ms），但 App 启动时前置挂载了
+ *      开屏容器，在网络 failure 回调中未调用 dismiss，或走本地弱网缓存兜底，依然停留 5s 等跳过。
+ *    - v1.3 返回业务错误码 code 9999：App 同样判定为网络/业务异常，仍可能走错误兜底分支。
+ *    - v1.4 正解：在请求阶段（http-request）直接 Mock 标准成功且无活动响应（code: "0000", data: null），
+ *      App 命中无投放分支主动调用 dismiss 销毁开屏容器，秒进首页，彻底去除空白开屏与跳过按钮。
  * 2. 弹窗由 GET a.chinaamc.com/mtrading-fm/query/getPopupInfoNew.json 控制，
  *    响应体 data.popupBodyList 为弹窗内容数组；强制改写为空数组。
  * 3. 纯上报与广告配置类请求（腾讯 rdelivery 广告配置、APM 监控、神策埋点、
@@ -19,10 +19,28 @@
 const requestUrl = String(($request && $request.url) || "");
 
 function handleSplash() {
-    // 不解析原响应，直接返回"无投放"：非 0000 的业务码 + 空 data
-    $done({ body: JSON.stringify({ code: "9999", msg: "暂无开屏活动", data: null }) });
-    console.log("[华夏基金] 开屏已按无投放处理: " + requestUrl);
+    const emptySplash = JSON.stringify({
+        code: "0000",
+        msg: "获取数据成功",
+        data: null
+    });
+    console.log("[华夏基金] 开屏已按业务无投放处理 (code 0000, data null): " + requestUrl);
+
+    if (typeof $response !== "undefined") {
+        $done({ body: emptySplash });
+    } else {
+        $done({
+            response: {
+                status: 200,
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8"
+                },
+                body: emptySplash
+            }
+        });
+    }
 }
+
 function handlePopup() {
     const body = $response && $response.body;
     if (!body) {
