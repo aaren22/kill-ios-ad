@@ -1,11 +1,11 @@
-#!name=华夏基金去广告 v1.6
-#!desc=开屏接口改为 http-response 改写（imageList 置为空数组 [] 并归零展示时长字段，同时输出原始字段日志以便核对）；新增清理 getSystemParameter.json 中的 popAd 弹窗广告；清空营销弹窗，屏蔽监控埋点。
+#!name=华夏基金去广告 v1.7
+#!desc=开屏接口默认返回业务无数据码（code:9999, data:{}），避免 code:0000 + 非空对象触发空白开屏页及残留跳过按钮；同时清理 getSystemParameter.json 的 popAd 与 getPopupInfoNew.json 营销弹窗，屏蔽监控埋点。
 #!author=aaren22
 #!homepage=https://github.com/aaren22/kill-ios-ad
 #!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/github_00.png
 #!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin.lpx
 #!date=20261114
-#!version=1.6
+#!version=1.7
 #############################################
 
 [Rule]
@@ -17,12 +17,12 @@ DOMAIN-SUFFIX,mips.chinaamc.com, REJECT
 DOMAIN,dash.xn--cp3a08l.com, REJECT
 
 [Script]
-# 开屏下发接口：改用 http-response，获取 7.0.2 真实响应结构并安全置空
-http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/splashAfter4_5_0\.json(?:\?|$) script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js?v=1.6, requires-body=true, timeout=10, tag=华夏基金-开屏广告-v1.6
+# 开屏下发接口：默认返回 code=9999, data={}
+http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/splashAfter4_5_0\.json(?:\?|$) script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js?v=1.7, requires-body=true, timeout=10, tag=华夏基金-开屏广告-v1.7
 # 弹窗控制接口：强制 popupBodyList 为空数组
-http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/getPopupInfoNew\.json(?:\?|$) script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js?v=1.6, requires-body=true, timeout=10, tag=华夏基金-弹窗-v1.6
+http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/getPopupInfoNew\.json(?:\?|$) script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js?v=1.7, requires-body=true, timeout=10, tag=华夏基金-弹窗-v1.7
 # 系统参数接口：清理隐藏的 popAd 弹窗广告字段
-http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/getSystemParameter\.json(?:\?|$) script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js?v=1.6, requires-body=true, timeout=10, tag=华夏基金-系统参数弹窗-v1.6
+http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/getSystemParameter\.json(?:\?|$) script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js?v=1.7, requires-body=true, timeout=10, tag=华夏基金-系统参数弹窗-v1.7
 
 [MITM]
 hostname = a.chinaamc.com
