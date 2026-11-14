@@ -1,16 +1,14 @@
-#!name=华夏基金去广告 v1.4
-#!desc=移除华夏基金开屏广告与弹窗，屏蔽腾讯广告配置与埋点上报；基于 HAR 抓包分析（splashAfter4_5_0 / getPopupInfoNew / rdelivery）。v1.4：开屏接口直接在请求阶段 Mock 业务成功且无投放响应（code 0000, data null），避免 404 网络错误或清空图片时触发本地兜底与倒计时
+#!name=华夏基金去广告 v1.5
+#!desc=开屏接口返回服务端真实空对象（id/activityDesc/imageList/skipBtnTxt 均为 null），不再使用 404 或 data:null；清空营销弹窗，屏蔽监控埋点。脚本带版本响应头，便于确认更新是否生效；跳过按钮效果需手机实测
 #!author=aaren22
 #!homepage=https://github.com/aaren22/kill-ios-ad
 #!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/github_00.png
 #!raw-url=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin.lpx
-#!date=20261113
-#!version=1.4
+#!date=20261114
+#!version=1.5
 #############################################
 
 [Rule]
-# 腾讯广告投放配置（加密下发，纯广告，直接拒绝）
-DOMAIN,camc.rdelivery.qq.com, REJECT
 # 性能监控上报（纯上报，无业务功能）
 DOMAIN-SUFFIX,apm.chinaamc.com, REJECT
 # 神策埋点上报（纯上报，无业务功能）
@@ -19,11 +17,10 @@ DOMAIN-SUFFIX,mips.chinaamc.com, REJECT
 DOMAIN,dash.xn--cp3a08l.com, REJECT
 
 [Script]
-# 开屏下发接口：在请求阶段直接 Mock 业务层"无投放"响应（code 0000, data null），促使 App 立即销毁开屏容器秒进首页
-# （实测：若 reject 返回 404 或仅清空图片列表，App 会触发未销毁容器/本地兜底，残留空白开屏与跳过按钮）
-http-request ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/splashAfter4_5_0\.json script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js, timeout=10, tag=华夏基金-开屏广告
+# 开屏下发接口：按服务器对旧版本客户端返回的空对象模拟 HTTP 200 响应
+http-request ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/splashAfter4_5_0\.json(?:\?|$) script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js?v=1.5, timeout=10, tag=华夏基金-开屏广告-v1.5
 # 弹窗控制接口：强制 popupBodyList 为空数组
-http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/getPopupInfoNew\.json script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js, requires-body=true, timeout=10, tag=华夏基金-弹窗
+http-response ^https?:\/\/a\.chinaamc\.com\/mtrading-fm\/query\/getPopupInfoNew\.json(?:\?|$) script-path=https://raw.githubusercontent.com/aaren22/kill-ios-ad/main/HuaXiaJiJin_ad_remove.js?v=1.5, requires-body=true, timeout=10, tag=华夏基金-弹窗-v1.5
 
 [MITM]
 hostname = a.chinaamc.com
